@@ -11,7 +11,7 @@ public static class HangfireHelper
 {
     public static void AddHangfireService(this IServiceCollection services, string mongoUri, string dbName)
     {
-        var mongoUrlBuilder = new MongoUrlBuilder($"{mongoUri}/{dbName}");
+        var mongoUrlBuilder = new MongoUrlBuilder($"mongodb+srv://DemoOboardT6:DemoOboardT6@demo.k3cznht.mongodb.net/"+dbName);
         var mongoClient = new MongoClient(mongoUrlBuilder.ToMongoUrl());
 
         // Add Hangfire services. Hangfire.AspNetCore nuget required
