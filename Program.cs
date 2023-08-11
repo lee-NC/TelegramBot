@@ -1,18 +1,17 @@
-using System.Data;
-using ClosedXML.Excel;
-using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using DataTable = System.Data.DataTable;
+using TelegramBot.Service;
 using File = System.IO.File;
 
 namespace TelegramBot
 {
     class Program
     {
-        static TelegramBotClient Bot = new TelegramBotClient("6225563156:AAEb2E51Qyb4P5JxbJA3G0kFPWPaZGh6kuQ");
+        static TelegramBotClient Bot =
+            new TelegramBotClient("6225563156:AAEb2E51Qyb4P5JxbJA3G0kFPWPaZGh6kuQ");
+
         static string filePath = "../Users/lengo/Pictures/Saved Pictures/ngon-ngu-meo.jpg";
         static string destinationPath = "../BUCA/demo/TelegramBot/TelegramBot/demo.json";
         static string fileName = "demo.xlsx";
@@ -46,7 +45,8 @@ namespace TelegramBot
             Console.WriteLine(e.Message);
         }
 
-        private static async Task UpdateHandler(ITelegramBotClient bot, Update update, CancellationToken arg3)
+        private static async Task UpdateHandler(ITelegramBotClient bot, Update update,
+            CancellationToken arg3)
         {
             if (update.Type == UpdateType.Message)
             {
@@ -76,24 +76,49 @@ namespace TelegramBot
                     {
                         try
                         {
-                            SaveToFile();
+                            // SaveToFile();
                             await using Stream stream = System.IO.File.OpenRead(fileName);
                             await Bot.SendDocumentAsync(_botUpdate.Id,
                                 InputFile.FromStream(stream: stream, fileName: "hamlet.xlsx"));
                         }
                         finally
                         {
-                            if(File.Exists(fileName))
+                            if (File.Exists(fileName))
                             {
                                 try
                                 {
                                     File.Delete(fileName);
-                                } 
-                                catch(Exception ex)
+                                }
+                                catch (Exception ex)
                                 {
                                     Console.WriteLine(ex.Message);
-                                } 
-                            }  
+                                }
+                            }
+                        }
+                    }
+                    else if (_botUpdate.Text.StartsWith("/population"))
+                    {
+                        var client = new HttpClient();
+                        var request = new HttpRequestMessage
+                        {
+                            Method = HttpMethod.Get,
+                            RequestUri =
+                                new Uri(
+                                    "https://bloomberg-market-and-financial-news.p.rapidapi.com/market/auto-complete?query=%3CREQUIRED%3E"),
+                            Headers =
+                            {
+                                { "X-RapidAPI-Key", "SIGN-UP-FOR-KEY" },
+                                {
+                                    "X-RapidAPI-Host",
+                                    "bloomberg-market-and-financial-news.p.rapidapi.com"
+                                },
+                            },
+                        };
+                        using (var response = await client.SendAsync(request))
+                        {
+                            response.EnsureSuccessStatusCode();
+                            var body = await response.Content.ReadAsStringAsync();
+                            Console.WriteLine(body);
                         }
                     }
                     else
@@ -111,6 +136,4 @@ namespace TelegramBot
         public long Id { get; set; }
         public string? Username { get; set; }
     }
-
-    
 }
